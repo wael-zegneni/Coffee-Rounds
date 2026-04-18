@@ -11,6 +11,7 @@ A lightweight web app for tracking weekly coffee rounds among colleagues. Built 
 - **Scoreboard** — Visual ring charts showing each person's paid/present stats
 - **Fun stats** — Total spent, average per head, priciest round, most present member, biggest spender
 - **Team management** — Add or remove members dynamically; historical data is preserved for removed members
+- **Keyword protection** — Client-side lock screen with SHA-256 hashed password; the app and Firebase data are only accessible after entering the correct keyword
 - **Installable PWA** — Add to home screen on iOS/Android for a native app feel
 - **In-app help** — Rules, rotation logic, and examples accessible from the Help tab
 
@@ -49,14 +50,26 @@ The app uses four Firebase Realtime Database refs:
   {
     "id": 1713350400000,
     "date": "2025-04-17",
-    "payer": "Nick",
+    "payer": "Alice",
     "amount": 18.50,
-    "present": ["Nick", "Pooya", "Sankar", "Wael", "Ali"]
+    "present": ["Alice", "Bob", "Charlie", "Dave", "Eve"]
   }
   ```
-- **`members`** — Array of active member names (e.g. `["Anurag", "Ali", "Sankar", ...]`)
+- **`members`** — Array of active member names
 - **`rotation-order`** — Array defining the payment rotation sequence
 - **`rotation-pointer`** — Integer index into `rotation-order` indicating who pays next
+
+### Keyword protection
+
+The app is gated behind a lock screen. Users must enter a keyword before any content or Firebase data loads. The keyword is stored as a SHA-256 hash in the source code — never in plain text. The hash is compared using the browser's native `crypto.subtle` API.
+
+Once unlocked, the session is remembered via `sessionStorage` so users don't have to re-enter the keyword on every page interaction. Closing the browser tab clears the session.
+
+To change the keyword:
+1. Generate a SHA-256 hash of your new keyword (e.g. via `echo -n "yourkeyword" | sha256sum`)
+2. Replace the `PASS_HASH` constant in the script section of `index.html`
+
+> Note: This is client-side protection — it deters casual access but is not a substitute for server-side authentication. For stronger security, consider adding Firebase Authentication.
 
 ### Rotation logic
 
@@ -94,7 +107,9 @@ Firebase listeners (`on('value')`) provide real-time updates. When any device wr
      appId: 'YOUR_APP_ID'
    };
    ```
-3. Deploy to any static hosting (GitHub Pages, Netlify, Vercel, or just open the file locally)
+3. Update the `PASS_HASH` constant with the SHA-256 hash of your chosen keyword
+4. Update the `INITIAL_MEMBERS` array with your team members' names
+5. Deploy to any static hosting (GitHub Pages, Netlify, Vercel, or just open the file locally)
 
 ### Firebase Database Rules (development)
 
@@ -116,7 +131,6 @@ The UI follows 2025-2026 design trends:
 - **Glassmorphism** — Semi-transparent cards with `backdrop-filter: blur(20px)`
 - **Warm coffee palette** — Deep espresso browns, warm creams, and golden accents
 - **Bottom navigation** on mobile, inline tabs on desktop (≥640px)
-- **Micro-animations** — Fade-up card entrances, bouncy transitions
 - **Grain texture overlay** — Subtle SVG noise filter for visual warmth
 - **Safe area insets** — Supports notched phones
 

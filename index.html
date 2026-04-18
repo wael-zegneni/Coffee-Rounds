@@ -879,6 +879,88 @@
     .view { display: none; }
     .view.active { display: block; }
 
+    /* ===== LOCK SCREEN ===== */
+    #lock-screen {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      padding: 24px;
+    }
+
+    .lock-card {
+      background: var(--card);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .lock-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .lock-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    .lock-desc {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    .lock-input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--card-solid);
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+      -webkit-appearance: none;
+    }
+
+    .lock-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .lock-btn {
+      width: 100%;
+    }
+
+    .lock-hint {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .lock-error {
+      font-size: 0.78rem;
+      color: var(--danger);
+      font-weight: 600;
+      margin-top: 12px;
+      min-height: 1.2em;
+    }
+
     /* ===== HELP ===== */
     .help-section {
       margin-bottom: 20px;
@@ -967,6 +1049,19 @@
   </style>
 </head>
 <body>
+
+  <!-- LOCK SCREEN -->
+  <div id="lock-screen">
+    <div class="lock-card">
+      <div class="lock-icon">&#9749;</div>
+      <h1 class="lock-title">Coffee Rounds</h1>
+      <p class="lock-desc" id="lock-joke"></p>
+      <p class="lock-hint">Forgot the keyword? It starts with 'b' and it's definitely not 'barista' ☠️</p>
+      <input type="password" id="lock-input" class="lock-input" placeholder="Keyword" autocomplete="off">
+      <button class="btn btn-primary lock-btn" onclick="tryUnlock()">Unlock</button>
+      <p id="lock-error" class="lock-error"></p>
+    </div>
+  </div>
 
   <div id="main-app" style="display:none">
     <header>
@@ -1873,14 +1968,65 @@
     }
 
     // =============================================
+    // AUTH GATE
+    // =============================================
+    const PASS_HASH = '6b9c23d75f15ac5c5f71976d01b8a62f14528d2c08b4e736e6b4283e52be3123';
+
+    async function sha256(text) {
+      const data = new TextEncoder().encode(text);
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function tryUnlock() {
+      const input = document.getElementById('lock-input');
+      const hash = await sha256(input.value.trim().toLowerCase());
+      if (hash === PASS_HASH) {
+        sessionStorage.setItem('coffee-unlocked', '1');
+        startApp();
+      } else {
+        document.getElementById('lock-error').textContent = 'Wrong keyword, try again';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function startApp() {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      initFirebase(FIREBASE_CONFIG);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+    }
+
+    // =============================================
     // BOOT
     // =============================================
     (function boot() {
-      document.getElementById('main-app').style.display = 'block';
-      initFirebase(FIREBASE_CONFIG);
+      // Coffee jokes
+      const jokes = [
+        "What do you call sad coffee? Depresso.",
+        "How does coffee say hi? It gives you a warm mug.",
+        "Why did the coffee file a police report? It got mugged.",
+        "What's a barista's favorite exercise? The French press.",
+        "How are coffee beans like teenagers? Always getting grounded.",
+        "What did the coffee say to its date? Where have you bean all my life?",
+        "Why do coffee lovers never get lost? They always follow the drip.",
+        "What's coffee's favorite spell? Espresso Patronum!",
+        "Why was the coffee always late? It kept getting held up at the filter.",
+        "What do you call a cow that just gave birth? De-calf-inated."
+      ];
+      document.getElementById('lock-joke').textContent = jokes[Math.floor(Math.random() * jokes.length)];
 
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      // Enter key on lock input
+      document.getElementById('lock-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') tryUnlock();
+      });
+
+      // Skip lock if already unlocked this session
+      if (sessionStorage.getItem('coffee-unlocked') === '1') {
+        startApp();
       }
     })();
   </script>
