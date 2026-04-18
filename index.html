@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#3c2415">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Coffee Rounds</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f5ede4;
+      --bg-warm: #efe5d8;
+      --card: rgba(255,255,255,0.72);
+      --card-solid: #ffffff;
+      --card-border: rgba(255,255,255,0.45);
+      --primary: #6b3f1f;
+      --primary-light: #8b5e3c;
+      --primary-dark: #3c2415;
+      --primary-glow: rgba(107,63,31,0.12);
+      --accent: #c8915a;
+      --accent-light: #f0dcc8;
+      --accent-warm: #e8c9a0;
+      --text: #2c1810;
+      --text-mid: #5c4a3a;
+      --text-light: #8a7a6a;
+      --border: rgba(139,94,60,0.12);
+      --danger: #bf3b30;
+      --danger-light: #fef0ef;
+      --success: #2d8a4e;
+      --success-light: #ecfaf1;
+      --radius: 16px;
+      --radius-lg: 22px;
+      --radius-pill: 100px;
+      --shadow-sm: 0 1px 3px rgba(60,36,21,0.06);
+      --shadow: 0 4px 20px rgba(60,36,21,0.07), 0 1px 3px rgba(60,36,21,0.04);
+      --shadow-lg: 0 8px 40px rgba(60,36,21,0.1), 0 2px 6px rgba(60,36,21,0.04);
+      --blur: blur(20px) saturate(1.4);
+      --transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      --nav-height: 68px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grain texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 40px 24px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative circles in header */
+    header::before {
+      content: '';
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -100px;
+      right: -60px;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      bottom: -60px;
+      left: -40px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      position: relative;
+    }
+
+    header p {
+      opacity: 0.65;
+      margin-top: 4px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      position: relative;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-top: 10px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .sync-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .sync-badge.connected { background: rgba(45,138,78,0.2); color: #a8f0c4; }
+    .sync-badge.connected::before { background: #6ee7a0; }
+    .sync-badge.disconnected { background: rgba(191,59,48,0.2); color: #f0b0ab; }
+    .sync-badge.disconnected::before { background: #f07a72; }
+
+    /* ===== CONTAINER ===== */
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 20px 16px calc(var(--nav-height) + 24px);
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-top: 1px solid var(--border);
+      padding: 6px 8px calc(env(safe-area-inset-bottom, 6px) + 6px);
+      z-index: 50;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 2px;
+      border: none;
+      background: transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: all var(--transition);
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .tab-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      transition: transform var(--bounce);
+    }
+
+    .tab:hover { color: var(--text-mid); }
+
+    .tab.active {
+      color: var(--primary);
+    }
+
+    .tab.active .tab-icon {
+      transform: scale(1.15);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--card);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* ===== FORM ===== */
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--card-solid);
+      transition: all var(--transition);
+      margin-bottom: 18px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* ===== CHIPS ===== */
+    .people-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      padding: 9px 18px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border);
+      background: var(--card-solid);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-mid);
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .chip:hover { border-color: var(--accent-warm); background: #fffaf5; }
+
+    .chip.selected {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--primary);
+    }
+
+    .chip.payer {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      width: 100%;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(107,63,31,0.2);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ===== SCOREBOARD ===== */
+    /* ===== SCOREBOARD GRID ===== */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .score-card {
+      background: var(--bg-warm);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .score-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .score-ring-wrap {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+    }
+
+    .score-ring-wrap svg {
+      width: 52px;
+      height: 52px;
+      transform: rotate(-90deg);
+    }
+
+    .score-ring-bg {
+      fill: none;
+      stroke: var(--card-border);
+      stroke-width: 5;
+    }
+
+    .score-ring-fill {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .score-ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .score-detail {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .score-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .score-numbers {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 5px;
+    }
+
+
+    /* ===== SPENT LIST ===== */
+    .spent-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .spent-row:last-child { border-bottom: none; }
+
+    .spent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .spent-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .spent-amount {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--primary);
+    }
+
+    /* ===== MANAGE TEAM ===== */
+    .add-member-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .add-member-row input {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+
+    .add-member-row .btn.btn-primary {
+      flex-shrink: 0;
+      width: auto;
+      padding: 12px 22px;
+      font-size: 0.85rem;
+    }
+
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .member-item:last-child { border-bottom: none; }
+
+    .member-item-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .member-item-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .member-remove-btn {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+
+    .member-remove-btn:hover { opacity: 0.8; }
+
+    /* ===== HISTORY ===== */
+    .history-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .history-payer {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .history-amount {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .history-date {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .history-present {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .history-delete {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: all var(--transition);
+    }
+
+    .history-delete:hover { color: var(--danger); background: var(--danger-light); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state .emoji { font-size: 2.8rem; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.92rem; font-weight: 500; }
+
+    /* ===== NEXT UP BANNER ===== */
+    .next-up {
+      background: linear-gradient(135deg, #fdf4ec 0%, #fff8f2 50%, #f8efe5 100%);
+      border: 1.5px solid var(--accent-warm);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .next-up-header {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-light);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .next-up-rotation {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    /* ===== ROLL CALL ===== */
+    .rollcall-person {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .rollcall-person + .rollcall-person {
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+
+    .rollcall-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .rollcall-name .rollcall-role {
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: block;
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .rollcall-role.owes { color: var(--primary); }
+    .rollcall-role.covers { color: var(--accent); }
+
+    .rollcall-name.absent-name {
+      color: var(--text-light);
+      text-decoration: line-through;
+    }
+
+    .rollcall-btns {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .rollcall-btn {
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border);
+      background: white;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .rollcall-btn:active { transform: scale(0.96); }
+
+    .rollcall-btn.absent-btn {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .rollcall-btn.absent-btn:hover { background: var(--danger); color: white; }
+
+    .rollcall-btn.present-btn {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .rollcall-btn.present-btn:hover { background: var(--success); color: white; }
+
+    .rollcall-badge {
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .rollcall-badge.absent { background: var(--danger-light); color: var(--danger); }
+    .rollcall-badge.confirmed { background: var(--success-light); color: var(--success); }
+
+    .rollcall-reset {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--text-light);
+      transition: color var(--transition);
+    }
+
+    .rollcall-reset:hover { color: var(--primary); border-color: var(--primary); }
+
+    /* ===== ORDER LIST ===== */
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      margin-bottom: 4px;
+      transition: background var(--transition);
+    }
+
+    .order-item:hover { background: var(--bg-warm); }
+
+    .order-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: var(--bg-warm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-light);
+      flex-shrink: 0;
+    }
+
+    .order-item.is-next .order-number {
+      background: var(--primary);
+      color: white;
+    }
+
+    .order-item-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .order-item.is-next .order-item-name { color: var(--primary); font-weight: 700; }
+
+    .order-tag {
+      font-weight: 600;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-left: 6px;
+    }
+
+    .order-tag.next { color: var(--accent); }
+
+    .order-btns {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .order-btn {
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-solid);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      transition: all var(--transition);
+    }
+
+    .order-btn:hover {
+      border-color: var(--accent);
+      color: var(--primary);
+      background: var(--accent-light);
+    }
+
+    .order-btn:active { transform: scale(0.92); }
+
+    .order-btn:disabled {
+      opacity: 0.2;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .order-btn.set-next-btn {
+      font-size: 0.65rem;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .order-btn.set-next-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ===== FUN STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-tile {
+      background: var(--bg-warm);
+      border-radius: 14px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: transform var(--transition);
+    }
+
+    .stat-tile:hover { transform: translateY(-2px); }
+
+    .stat-tile.wide { grid-column: 1 / -1; }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-value.highlight { color: var(--primary); }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: calc(var(--nav-height) + 16px);
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--primary-dark);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ===== HELP ===== */
+    .help-section {
+      margin-bottom: 20px;
+    }
+
+    .help-section:last-child { margin-bottom: 0; }
+
+    .help-section h3 {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .help-section p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-mid);
+      margin-bottom: 8px;
+    }
+
+    .help-example {
+      background: var(--bg-warm);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: var(--text-mid);
+      margin: 8px 0;
+    }
+
+    .help-example strong {
+      color: var(--primary);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 420px) {
+      .score-grid { grid-template-columns: 1fr; }
+      .score-card { padding: 12px; }
+      .score-numbers { font-size: 0.65rem; }
+      .score-name { font-size: 0.8rem; }
+      .container { padding-left: 12px; padding-right: 12px; }
+      .card { padding: 18px; }
+    }
+
+    @media (min-width: 640px) {
+      .tabs {
+        position: static;
+        border-top: none;
+        border-radius: var(--radius);
+        padding: 5px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow);
+        backdrop-filter: none;
+        background: var(--card);
+      }
+      .tab {
+        flex-direction: row;
+        gap: 5px;
+        padding: 10px 12px;
+        font-size: 0.75rem;
+      }
+      .tab-icon { font-size: 1rem; }
+      .tab.active::after { display: none; }
+      .tab.active { background: var(--primary); color: white; border-radius: 12px; }
+      .tab.active .tab-icon { transform: none; }
+      .container { padding-bottom: 32px; }
+      .toast { bottom: 24px; }
+      :root { --nav-height: 0px; }
+    }
+
+    /* ===== CARD ORDER DESCRIPTION ===== */
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="main-app" style="display:none">
+    <header>
+      <h1>Coffee Rounds</h1>
+      <p>Thursday coffee tracker</p>
+      <div class="sync-badge" id="sync-badge">connecting...</div>
+    </header>
+
+    <div class="container">
+      <!-- Bottom Nav (mobile) / Top Nav (desktop) -->
+      <div class="tabs">
+        <button class="tab active" onclick="showView('log', this)">
+          <span class="tab-icon">&#9749;</span> Log
+        </button>
+        <button class="tab" onclick="showView('board', this)">
+          <span class="tab-icon">&#127942;</span> Board
+        </button>
+        <button class="tab" onclick="showView('history', this)">
+          <span class="tab-icon">&#128203;</span> History
+        </button>
+        <button class="tab" onclick="showView('order', this)">
+          <span class="tab-icon">&#128260;</span> Settings
+        </button>
+        <button class="tab" onclick="showView('help', this)">
+          <span class="tab-icon">&#10067;</span> Help
+        </button>
+      </div>
+
+      <!-- LOG VIEW -->
+      <div id="view-log" class="view active">
+        <div id="next-up-banner"></div>
+
+        <div class="card">
+          <h2>New Round</h2>
+
+          <label>Date</label>
+          <input type="date" id="round-date">
+
+          <label>Who's paying?</label>
+          <div class="people-grid" id="payer-select"></div>
+
+          <label>Who's present?</label>
+          <div class="people-grid" id="present-select"></div>
+
+          <label>Total amount (&euro;)</label>
+          <input type="number" id="round-amount" placeholder="0.00" step="0.01" min="0">
+
+          <button class="btn btn-primary" onclick="addRound()" style="margin-top:4px">
+            Log Round
+          </button>
+        </div>
+      </div>
+
+      <!-- SCOREBOARD VIEW -->
+      <div id="view-board" class="view">
+        <div id="next-up-banner2"></div>
+        <div class="card">
+          <h2>Scoreboard</h2>
+          <div id="scoreboard" class="score-grid"></div>
+        </div>
+
+        <div class="card">
+          <h2>Total Spent</h2>
+          <div id="spent-board"></div>
+        </div>
+
+        <div class="card" id="fun-stats-card" style="display:none">
+          <h2>Stats</h2>
+          <div class="stats-grid" id="fun-stats"></div>
+        </div>
+      </div>
+
+      <!-- HISTORY VIEW -->
+      <div id="view-history" class="view">
+        <div class="card">
+          <h2>Round History</h2>
+          <div id="history-list"></div>
+        </div>
+      </div>
+
+      <!-- ORDER VIEW -->
+      <div id="view-order" class="view">
+        <div class="card">
+          <h2>Rotation Order</h2>
+          <p class="card-desc">
+            The rotation determines who pays next. Use the arrows to rearrange.
+            If someone is absent on their turn, they still owe when they're back.
+          </p>
+          <div id="order-list"></div>
+        </div>
+        <div class="card">
+          <h2>Manage Team</h2>
+          <p class="card-desc">Add or remove members. Removed members keep their history.</p>
+          <div class="add-member-row">
+            <input type="text" id="new-member-name" class="input" placeholder="New member name" maxlength="20">
+            <button class="btn btn-primary" onclick="addMember()">Add</button>
+          </div>
+          <div id="member-list"></div>
+        </div>
+      </div>
+
+      <!-- HELP VIEW -->
+      <div id="view-help" class="view">
+        <div class="card">
+          <h2>How It Works</h2>
+          <p class="card-desc">A quick guide to the coffee round system.</p>
+
+          <div class="help-section">
+            <h3>The Basics</h3>
+            <p>Every Thursday, the group goes for coffee. One person pays for everyone that week. The app tracks who paid, who was present, and how much was spent — so everything stays fair over time.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>Rotation</h3>
+            <p>There's a fixed rotation order that determines who pays next. After someone pays, the pointer moves to the next person in the list.</p>
+            <div class="help-example">
+              <strong>Example:</strong> The order is Nick → Pooya → Sankar → Wael. Nick pays this week, so next week the pointer moves to Pooya.
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h3>Absence Rules</h3>
+            <p>If it's your turn but you're absent, you still owe one round when you come back. The app skips to the next available person for that week, but the pointer stays on you until you pay.</p>
+            <div class="help-example">
+              <strong>Example:</strong> It's Pooya's turn but he's on holiday. The app asks if Sankar can pay instead. Next week when Pooya is back, it's still his turn — he owes one round.
+            </div>
+            <p>Being absent when it's <em>not</em> your turn has no effect on the rotation. You simply don't appear in that week's "present" list.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>Logging a Round</h3>
+            <p>Go to the <strong>Log</strong> tab. Pick the date, select who paid, check who was present, enter the total amount, and hit "Log Round." The data syncs instantly to all devices.</p>
+            <div class="help-example">
+              <strong>Example:</strong> On April 17, Nick paid €18.50 for 5 people. Select April 17, tap Nick as payer, uncheck the 2 absent people, type 18.50, and log it.
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h3>Scoreboard</h3>
+            <p>The <strong>Board</strong> tab shows each person's stats: how many times they paid and how many times they were present. The ring chart shows paid count at a glance.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>Managing the Team</h3>
+            <p>Go to <strong>Settings</strong> to add or remove people. New members are added to the end of the rotation. When someone is removed, their historical data is preserved — they'll still appear in past rounds and stats.</p>
+          </div>
+
+          <div class="help-section">
+            <h3>Manual Pointer Override</h3>
+            <p>If the rotation gets out of sync (e.g. after entering historical data), go to <strong>Settings</strong> and tap the ▶ button next to any person to set them as the next payer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <script>
+    // =============================================
+    // CONFIG & STATE
+    // =============================================
+    const INITIAL_MEMBERS = ['Anurag', 'Ali', 'Sankar', 'Pooya', 'Nick', 'Henk', 'Wael'];
+    const DEFAULT_ORDER = ['Nick', 'Pooya', 'Sankar', 'Wael', 'Ali', 'Anurag', 'Henk'];
+    const DEFAULT_POINTER = 6; // Henk — because Anurag paid last
+    let MEMBERS = [...INITIAL_MEMBERS];
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDwTKQTS5_umtaFKVkeICAwLs-NuW7cPV0",
+      authDomain: "coffee-rounds.firebaseapp.com",
+      databaseURL: "https://coffee-rounds-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "coffee-rounds",
+      storageBucket: "coffee-rounds.firebasestorage.app",
+      messagingSenderId: "538041305478",
+      appId: "1:538041305478:web:68fe9e01fb50ec5f4d0407",
+      measurementId: "G-VR3MN68WEH"
+    };
+
+    let data = { rounds: [] };
+    let rotationOrder = [...DEFAULT_ORDER];
+    let pointerIndex = DEFAULT_POINTER;
+    let selectedPayer = null;
+    let selectedPresent = new Set(MEMBERS);
+    let markedAbsent = new Set();
+    let confirmedPayer = null;
+    let db = null;
+    let isOnline = false;
+    let roundsRef = null;
+    let orderRef = null;
+    let pointerRef = null;
+    let membersRef = null;
+
+    // =============================================
+    // FIREBASE SETUP
+    // =============================================
+    function initFirebase(config) {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        db = firebase.database();
+        roundsRef = db.ref('coffee-rounds');
+        orderRef = db.ref('rotation-order');
+        pointerRef = db.ref('rotation-pointer');
+        membersRef = db.ref('members');
+
+        membersRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val && Array.isArray(val) && val.length > 0) {
+            MEMBERS = val;
+          } else {
+            membersRef.set(INITIAL_MEMBERS);
+            MEMBERS = [...INITIAL_MEMBERS];
+          }
+          renderAll();
+        });
+
+        roundsRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          data.rounds = val ? Object.values(val) : [];
+          renderAll();
+          setSyncBadge(true);
+        });
+
+        orderRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val && Array.isArray(val) && val.length > 0) {
+            rotationOrder = val;
+          } else {
+            orderRef.set(DEFAULT_ORDER);
+            rotationOrder = [...DEFAULT_ORDER];
+          }
+          renderAll();
+        });
+
+        pointerRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val !== null && typeof val === 'number') {
+            pointerIndex = val;
+          } else {
+            pointerRef.set(DEFAULT_POINTER);
+            pointerIndex = DEFAULT_POINTER;
+          }
+          renderAll();
+        });
+
+        db.ref('.info/connected').on('value', (snap) => {
+          isOnline = snap.val() === true;
+          setSyncBadge(isOnline);
+        });
+
+        initApp();
+      } catch (e) {
+        console.error('Firebase init error:', e);
+        toast('Firebase connection failed');
+      }
+    }
+
+    function setSyncBadge(connected, text) {
+      const badge = document.getElementById('sync-badge');
+      if (connected) {
+        badge.textContent = text || 'synced';
+        badge.className = 'sync-badge connected';
+      } else {
+        badge.textContent = text || 'offline';
+        badge.className = 'sync-badge disconnected';
+      }
+    }
+
+    // =============================================
+    // DATA OPERATIONS
+    // =============================================
+    function saveRound(round) {
+      if (db && roundsRef) {
+        roundsRef.child(String(round.id)).set(round);
+      } else {
+        toast('Not connected to Firebase');
+      }
+    }
+
+    function removeRound(id) {
+      if (db && roundsRef) {
+        roundsRef.child(String(id)).remove();
+      } else {
+        toast('Not connected to Firebase');
+      }
+    }
+
+    function saveOrder(newOrder) {
+      rotationOrder = newOrder;
+      if (db && orderRef) {
+        orderRef.set(newOrder);
+      }
+    }
+
+    function savePointer(newIndex) {
+      pointerIndex = newIndex;
+      if (db && pointerRef) {
+        pointerRef.set(newIndex);
+      }
+    }
+
+    // =============================================
+    // TIME & ROTATION LOGIC
+    // =============================================
+    function getMostRecentThursday() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      const day = d.getDay();
+      const diff = (day - 4 + 7) % 7;
+      d.setDate(d.getDate() - diff);
+      return d;
+    }
+
+    function getUpcomingThursday() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      const day = d.getDay();
+      const diff = (4 - day + 7) % 7;
+      d.setDate(d.getDate() + (diff === 0 ? 0 : diff));
+      return d;
+    }
+
+    function getNextThursdayStr() {
+      return getUpcomingThursday().toISOString().split('T')[0];
+    }
+
+    function isCurrentWeekRound(dateStr) {
+      const roundDate = new Date(dateStr + 'T00:00:00');
+      const threshold = getMostRecentThursday();
+      return roundDate >= threshold;
+    }
+
+    function getPointerPerson() {
+      return rotationOrder[pointerIndex % rotationOrder.length];
+    }
+
+    function advancePointerForRound(round) {
+      if (!isCurrentWeekRound(round.date)) return;
+      const pointerPerson = getPointerPerson();
+      if (round.present.includes(pointerPerson)) {
+        savePointer((pointerIndex + 1) % rotationOrder.length);
+      }
+    }
+
+    function formatThursday(date) {
+      return date.toLocaleDateString('en-GB', {
+        weekday: 'short', day: 'numeric', month: 'short'
+      });
+    }
+
+    // =============================================
+    // APP LOGIC
+    // =============================================
+    function initApp() {
+      document.getElementById('round-date').value = getNextThursdayStr();
+      renderPayerChips();
+      renderPresentChips();
+      renderAll();
+
+      // Enter key to add member
+      document.getElementById('new-member-name').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addMember();
+      });
+    }
+
+    function renderAll() {
+      renderPayerChips();
+      renderPresentChips();
+      renderScoreboard();
+      renderFunStats();
+      renderHistory();
+      renderNextUp();
+      renderOrderList();
+      renderMemberList();
+    }
+
+    function addRound() {
+      const date = document.getElementById('round-date').value;
+      const amount = parseFloat(document.getElementById('round-amount').value);
+      const present = [...selectedPresent];
+
+      if (!selectedPayer) return toast('Pick who\u2019s paying!');
+      if (!date) return toast('Pick a date!');
+      if (isNaN(amount) || amount <= 0) return toast('Enter the amount!');
+      if (present.length === 0) return toast('At least one person must be present!');
+
+      const round = {
+        id: Date.now(),
+        date,
+        payer: selectedPayer,
+        amount,
+        present
+      };
+
+      advancePointerForRound(round);
+      saveRound(round);
+
+      document.getElementById('round-amount').value = '';
+      selectedPayer = null;
+      selectedPresent = new Set(MEMBERS);
+      markedAbsent.clear();
+      confirmedPayer = null;
+      renderPayerChips();
+      renderPresentChips();
+      document.getElementById('round-date').value = getNextThursdayStr();
+
+      toast('Round logged!');
+    }
+
+    function deleteRound(id) {
+      if (!confirm('Delete this round?')) return;
+      removeRound(id);
+      toast('Round deleted');
+    }
+
+    // =============================================
+    // RENDERING
+    // =============================================
+    function renderPayerChips() {
+      const el = document.getElementById('payer-select');
+      el.innerHTML = MEMBERS.map(name =>
+        `<div class="chip ${selectedPayer === name ? 'payer' : ''}" onclick="selectPayer('${name}')">${name}</div>`
+      ).join('');
+    }
+
+    function selectPayer(name) {
+      selectedPayer = selectedPayer === name ? null : name;
+      renderPayerChips();
+    }
+
+    function renderPresentChips() {
+      // Ensure new members are included by default, remove old ones
+      MEMBERS.forEach(m => { if (!selectedPresent.has(m)) selectedPresent.add(m); });
+      [...selectedPresent].forEach(m => { if (!MEMBERS.includes(m)) selectedPresent.delete(m); });
+
+      const el = document.getElementById('present-select');
+      el.innerHTML = MEMBERS.map(name =>
+        `<div class="chip ${selectedPresent.has(name) ? 'selected' : ''}" onclick="togglePresent('${name}')">${name}</div>`
+      ).join('');
+    }
+
+    function togglePresent(name) {
+      if (selectedPresent.has(name)) selectedPresent.delete(name);
+      else selectedPresent.add(name);
+      renderPresentChips();
+    }
+
+    function getAllKnownMembers() {
+      // Current members + anyone who appears in historical rounds
+      const all = new Set(MEMBERS);
+      data.rounds.forEach(r => {
+        if (r.payer) all.add(r.payer);
+        if (r.present) r.present.forEach(p => all.add(p));
+      });
+      return [...all];
+    }
+
+    function getStats() {
+      const stats = {};
+      getAllKnownMembers().forEach(m => stats[m] = { paid: 0, present: 0, spent: 0 });
+      data.rounds.forEach(r => {
+        if (stats[r.payer]) {
+          stats[r.payer].paid++;
+          stats[r.payer].spent += r.amount;
+        }
+        r.present.forEach(p => {
+          if (stats[p]) stats[p].present++;
+        });
+      });
+      return stats;
+    }
+
+    function renderScoreboard() {
+      const stats = getStats();
+      const totalRounds = data.rounds.length;
+
+      // SVG ring constants
+      const R = 20, C = 2 * Math.PI * R; // radius & circumference
+
+      // Show all known members (including historical), sorted by paid ratio
+      const allMembers = getAllKnownMembers();
+      const sorted = allMembers.sort((a, b) => {
+        const balA = stats[a].paid - (stats[a].present / MEMBERS.length);
+        const balB = stats[b].paid - (stats[b].present / MEMBERS.length);
+        return balA - balB;
+      });
+
+      const board = document.getElementById('scoreboard');
+      if (totalRounds === 0) {
+        board.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="emoji">&#9749;</div><p>No rounds yet. Log your first one!</p></div>';
+        document.getElementById('spent-board').innerHTML = '';
+        return;
+      }
+
+      board.innerHTML = sorted.map(name => {
+        const s = stats[name];
+
+        // Ring fill: paid / present ratio (how much of their attendance they've covered)
+        const ratio = s.present > 0 ? Math.min(s.paid / s.present, 1) : 0;
+        const dashOffset = C * (1 - ratio);
+
+        return `
+          <div class="score-card">
+            <div class="score-ring-wrap">
+              <svg viewBox="0 0 52 52">
+                <circle class="score-ring-bg" cx="26" cy="26" r="${R}"/>
+                <circle class="score-ring-fill" cx="26" cy="26" r="${R}"
+                  stroke="var(--primary)"
+                  stroke-dasharray="${C}"
+                  stroke-dashoffset="${dashOffset}"/>
+              </svg>
+              <div class="score-ring-label">${s.paid}</div>
+            </div>
+            <div class="score-detail">
+              <div class="score-name">${name}</div>
+              <div class="score-numbers">Paid ${s.paid} · Present ${s.present}</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const spentSorted = allMembers.filter(m => stats[m].spent > 0).sort((a, b) => stats[b].spent - stats[a].spent);
+
+      document.getElementById('spent-board').innerHTML = spentSorted.map(name => {
+        const s = stats[name];
+        const initial = name.charAt(0);
+        return `
+          <div class="spent-row">
+            <div class="spent-avatar">${initial}</div>
+            <div class="spent-name">${name}</div>
+            <div class="spent-amount">&euro;${s.spent.toFixed(2)}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderFunStats() {
+      const card = document.getElementById('fun-stats-card');
+      const el = document.getElementById('fun-stats');
+
+      if (data.rounds.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+
+      const stats = getStats();
+      const rounds = data.rounds;
+      const totalRounds = rounds.length;
+      const totalSpent = rounds.reduce((sum, r) => sum + r.amount, 0);
+      const avgRound = totalSpent / totalRounds;
+
+      const priciest = rounds.reduce((max, r) => r.amount > max.amount ? r : max, rounds[0]);
+      const priciestDate = new Date(priciest.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+      const cheapest = rounds.reduce((min, r) => r.amount < min.amount ? r : min, rounds[0]);
+
+      const allKnown = getAllKnownMembers();
+      const maxPresentCount = Math.max(...allKnown.map(m => stats[m].present));
+      const mostPresentList = allKnown.filter(m => stats[m].present === maxPresentCount);
+      const mostPresentText = mostPresentList.length > 1
+        ? 'Tie: ' + mostPresentList.join(', ')
+        : mostPresentList[0];
+
+      const maxSpentAmount = Math.max(...allKnown.map(m => stats[m].spent));
+      const bigSpenderList = allKnown.filter(m => stats[m].spent === maxSpentAmount);
+      const bigSpenderText = bigSpenderList.length > 1
+        ? 'Tie: ' + bigSpenderList.join(', ')
+        : bigSpenderList[0];
+
+      const totalHeads = rounds.reduce((sum, r) => sum + r.present.length, 0);
+      const avgPerHead = totalSpent / totalHeads;
+
+      const dates = rounds.map(r => new Date(r.date + 'T00:00:00')).sort((a, b) => a - b);
+      const weeksActive = Math.max(1, Math.round((dates[dates.length - 1] - dates[0]) / (7 * 24 * 60 * 60 * 1000)) + 1);
+
+      el.innerHTML = `
+        <div class="stat-tile">
+          <div class="stat-value">${totalRounds}</div>
+          <div class="stat-label">Total Rounds</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value">&euro;${totalSpent.toFixed(0)}</div>
+          <div class="stat-label">Total Spent</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value">&euro;${avgRound.toFixed(2)}</div>
+          <div class="stat-label">Avg Round Cost</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value">&euro;${avgPerHead.toFixed(2)}</div>
+          <div class="stat-label">Avg Per Head</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value highlight">&euro;${priciest.amount.toFixed(2)}</div>
+          <div class="stat-label">Priciest Round (${priciestDate})</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value">&euro;${cheapest.amount.toFixed(2)}</div>
+          <div class="stat-label">Cheapest Round</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value highlight">${mostPresentText}</div>
+          <div class="stat-label">Most Present (${maxPresentCount}x)</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-value highlight">${bigSpenderText}</div>
+          <div class="stat-label">Biggest Spender (&euro;${maxSpentAmount.toFixed(0)})</div>
+        </div>
+        <div class="stat-tile wide">
+          <div class="stat-value">${weeksActive} weeks</div>
+          <div class="stat-label">Coffee Club Active</div>
+        </div>
+      `;
+    }
+
+    function renderHistory() {
+      const el = document.getElementById('history-list');
+      if (data.rounds.length === 0) {
+        el.innerHTML = '<div class="empty-state"><div class="emoji">&#128203;</div><p>No history yet</p></div>';
+        return;
+      }
+
+      const sorted = [...data.rounds].sort((a, b) => new Date(b.date) - new Date(a.date));
+      el.innerHTML = sorted.map(r => {
+        const dateStr = new Date(r.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        const others = r.present.filter(p => p !== r.payer);
+        const presentStr = others.length > 0 ? 'with ' + others.join(', ') : 'solo';
+
+        return `
+          <div class="history-item">
+            <div class="history-top">
+              <div>
+                <span class="history-payer">${r.payer}</span> paid
+                <span class="history-amount">&euro;${r.amount.toFixed(2)}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="history-date">${dateStr}</span>
+                <button class="history-delete" onclick="deleteRound(${r.id})" title="Delete">&times;</button>
+              </div>
+            </div>
+            <div class="history-present">${presentStr} (${r.present.length} people)</div>
+          </div>`;
+      }).join('');
+    }
+
+    // =============================================
+    // ROLL CALL / ABSENCE CHECKER
+    // =============================================
+    function markAbsent(name) {
+      markedAbsent.add(name);
+      confirmedPayer = null;
+      selectedPresent.delete(name);
+      renderPresentChips();
+      renderNextUp();
+    }
+
+    function markPresent(name) {
+      confirmedPayer = name;
+      selectedPayer = name;
+      renderPayerChips();
+      renderNextUp();
+    }
+
+    function resetRollCall() {
+      markedAbsent.clear();
+      confirmedPayer = null;
+      selectedPayer = null;
+      selectedPresent = new Set(MEMBERS);
+      renderPayerChips();
+      renderPresentChips();
+      renderNextUp();
+    }
+
+    function getRollCallChain() {
+      const chain = [];
+      const pointerPerson = getPointerPerson();
+      let currentIdx = pointerIndex % rotationOrder.length;
+
+      chain.push({
+        name: pointerPerson,
+        owes: true,
+        absent: markedAbsent.has(pointerPerson),
+        confirmed: confirmedPayer === pointerPerson
+      });
+
+      if (markedAbsent.has(pointerPerson)) {
+        for (let step = 1; step < rotationOrder.length; step++) {
+          const idx = (currentIdx + step) % rotationOrder.length;
+          const name = rotationOrder[idx];
+          const isAbsent = markedAbsent.has(name);
+          const isConfirmed = confirmedPayer === name;
+
+          chain.push({ name, owes: false, absent: isAbsent, confirmed: isConfirmed });
+
+          if (!isAbsent || isConfirmed) break;
+        }
+      }
+
+      return chain;
+    }
+
+    function renderNextUp() {
+      const nextThurs = getUpcomingThursday();
+      const nextThursStr = formatThursday(nextThurs);
+      const chain = getRollCallChain();
+
+      let rowsHtml = '';
+      chain.forEach((person, i) => {
+        const isLast = i === chain.length - 1;
+        const needsAction = isLast && !person.absent && !person.confirmed && (i > 0 || !markedAbsent.has(person.name));
+
+        let roleHtml = person.owes
+          ? '<span class="rollcall-role owes">their turn</span>'
+          : '<span class="rollcall-role covers">covering</span>';
+
+        let actionHtml = '';
+        if (person.confirmed) {
+          actionHtml = '<span class="rollcall-badge confirmed">Paying</span>';
+        } else if (person.absent) {
+          actionHtml = '<span class="rollcall-badge absent">Absent</span>';
+        } else if ((i === 0 && markedAbsent.size === 0) || needsAction) {
+          actionHtml = `
+            <div class="rollcall-btns">
+              <button class="rollcall-btn present-btn" onclick="markPresent('${person.name}')">Present</button>
+              <button class="rollcall-btn absent-btn" onclick="markAbsent('${person.name}')">Absent</button>
+            </div>`;
+        }
+
+        const nameClass = person.absent ? 'rollcall-name absent-name' : 'rollcall-name';
+
+        rowsHtml += `
+          <div class="rollcall-person">
+            <div class="${nameClass}">${person.name}${roleHtml}</div>
+            ${actionHtml}
+          </div>`;
+      });
+
+      const pointerPerson = getPointerPerson();
+      const nextIdx = (pointerIndex + 1) % rotationOrder.length;
+      const afterIdx = (pointerIndex + 2) % rotationOrder.length;
+      const rotationPreview = `<strong>${pointerPerson}</strong> \u2192 ${rotationOrder[nextIdx]} \u2192 ${rotationOrder[afterIdx]}`;
+
+      const resetHtml = (markedAbsent.size > 0 || confirmedPayer)
+        ? '<button class="rollcall-reset" onclick="resetRollCall()">Reset roll call</button>'
+        : '';
+
+      const html = `
+        <div class="next-up">
+          <div class="next-up-header">Next to pay &middot; ${nextThursStr}</div>
+          ${rowsHtml}
+          <div class="next-up-rotation">${rotationPreview}</div>
+          ${resetHtml}
+        </div>`;
+
+      document.getElementById('next-up-banner').innerHTML = html;
+      document.getElementById('next-up-banner2').innerHTML = html;
+    }
+
+    function renderOrderList() {
+      const el = document.getElementById('order-list');
+
+      el.innerHTML = rotationOrder.map((name, i) => {
+        const isFirst = i === 0;
+        const isLast = i === rotationOrder.length - 1;
+        const isNext = i === (pointerIndex % rotationOrder.length);
+
+        let tag = '';
+        if (isNext) tag = '<span class="order-tag next">\u2190 next up</span>';
+
+        return `
+          <div class="order-item ${isNext ? 'is-next' : ''}">
+            <div class="order-number">${i + 1}</div>
+            <div class="order-item-name">${name}${tag}</div>
+            <div class="order-btns">
+              ${!isNext ? `<button class="order-btn set-next-btn" onclick="setPointer(${i})" title="Set as next">&#9654;</button>` : ''}
+              <button class="order-btn" onclick="moveOrder(${i}, -1)" ${isFirst ? 'disabled' : ''} title="Move up">&uarr;</button>
+              <button class="order-btn" onclick="moveOrder(${i}, 1)" ${isLast ? 'disabled' : ''} title="Move down">&darr;</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function moveOrder(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= rotationOrder.length) return;
+
+      const newOrder = [...rotationOrder];
+      const temp = newOrder[index];
+      newOrder[index] = newOrder[newIndex];
+      newOrder[newIndex] = temp;
+
+      const currentPointerMod = pointerIndex % rotationOrder.length;
+      if (currentPointerMod === index) {
+        savePointer(newIndex);
+      } else if (currentPointerMod === newIndex) {
+        savePointer(index);
+      }
+
+      saveOrder(newOrder);
+      renderOrderList();
+      renderNextUp();
+      toast(`${temp} moved ${direction === -1 ? 'up' : 'down'}`);
+    }
+
+    function setPointer(index) {
+      savePointer(index);
+      renderOrderList();
+      renderNextUp();
+      toast(`${rotationOrder[index]} set as next`);
+    }
+
+    // =============================================
+    // MEMBER MANAGEMENT
+    // =============================================
+    function saveMembers(members) {
+      MEMBERS = members;
+      if (membersRef) membersRef.set(members);
+    }
+
+    function addMember() {
+      const input = document.getElementById('new-member-name');
+      const name = input.value.trim();
+      if (!name) return toast('Please enter a name');
+
+      // Check for duplicates (case-insensitive)
+      if (MEMBERS.some(m => m.toLowerCase() === name.toLowerCase())) {
+        return toast(`${name} is already a member`);
+      }
+
+      const newMembers = [...MEMBERS, name];
+      saveMembers(newMembers);
+
+      // Also add to rotation order
+      const newOrder = [...rotationOrder, name];
+      saveOrder(newOrder);
+
+      input.value = '';
+      renderAll();
+      toast(`${name} joined the team!`);
+    }
+
+    function removeMember(name) {
+      if (MEMBERS.length <= 2) return toast('Need at least 2 members');
+      if (!confirm(`Remove ${name} from the team? Their history will be kept.`)) return;
+
+      // Remove from members
+      const newMembers = MEMBERS.filter(m => m !== name);
+      saveMembers(newMembers);
+
+      // Remove from rotation order
+      const orderIndex = rotationOrder.indexOf(name);
+      const newOrder = rotationOrder.filter(m => m !== name);
+
+      // Adjust pointer if needed
+      if (newOrder.length > 0) {
+        const currentPointer = pointerIndex % rotationOrder.length;
+        if (orderIndex !== -1) {
+          if (currentPointer === orderIndex) {
+            // Pointer was on removed person — keep same index (wraps to next)
+            savePointer(currentPointer % newOrder.length);
+          } else if (currentPointer > orderIndex) {
+            savePointer((currentPointer - 1) % newOrder.length);
+          }
+        }
+      }
+
+      saveOrder(newOrder);
+      renderAll();
+      toast(`${name} removed from team`);
+    }
+
+    function renderMemberList() {
+      const el = document.getElementById('member-list');
+      el.innerHTML = MEMBERS.map(name => {
+        const initial = name.charAt(0);
+        return `
+          <div class="member-item">
+            <div class="member-item-avatar">${initial}</div>
+            <div class="member-item-name">${name}</div>
+            <button class="member-remove-btn" onclick="removeMember('${name}')">Remove</button>
+          </div>`;
+      }).join('');
+    }
+
+    // =============================================
+    // NAVIGATION & TOAST
+    // =============================================
+    function showView(view, tabEl) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+      tabEl.classList.add('active');
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    // =============================================
+    // BOOT
+    // =============================================
+    (function boot() {
+      document.getElementById('main-app').style.display = 'block';
+      initFirebase(FIREBASE_CONFIG);
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

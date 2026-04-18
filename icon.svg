@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#6f4e37"/>
+  <g transform="translate(256,270)">
+    <!-- Cup body -->
+    <rect x="-110" y="-60" width="200" height="140" rx="16" fill="#fff" opacity="0.95"/>
+    <rect x="-110" y="-60" width="200" height="30" rx="8" fill="#d4a574"/>
+    <!-- Handle -->
+    <path d="M90,-30 Q140,-30 140,20 Q140,60 90,60" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" opacity="0.95"/>
+    <!-- Steam lines -->
+    <path d="M-60,-80 Q-55,-110 -60,-130" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+    <path d="M-10,-85 Q-5,-115 -10,-140" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+    <path d="M40,-80 Q45,-110 40,-130" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+    <!-- Saucer -->
+    <ellipse cx="-10" cy="90" rx="130" ry="18" fill="#fff" opacity="0.3"/>
+  </g>
+</svg>
